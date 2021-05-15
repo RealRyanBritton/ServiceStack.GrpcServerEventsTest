@@ -39,13 +39,17 @@ namespace Test.Grpc
 
             await foreach (var msg in stream)
             {
-                if (msg.Selector.ToLower().StartsWith("send-messages"))
+                if (msg.Op != "cmd")
                 {
+                    $"EVENT {msg.Selector} [{msg.Channel}]: #{msg.UserId} {msg.DisplayName}".Print();
+                    var notification = msg.Json.FromJson<SendMessage>();
+                    Assert.Equal("Hello", notification.Message);
                     break;
                 }
                 else
-                {
-                    $"EVENT {msg.Selector} [{msg.Channel}]: #{msg.UserId} {msg.DisplayName}".Print();
+                { 
+                    var command = $"EVENT {msg.Selector} [{msg.Channel}]: #{msg.UserId} {msg.DisplayName}";
+                    command.Print();
                 }
             }
         }
